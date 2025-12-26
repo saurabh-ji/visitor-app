@@ -1,54 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Site Visitors Dashboard</title>
-  <style>
-    body { font-family: Arial; background:#f5f5f5; }
-    h1 { text-align:center; }
-    .card { background:white; padding:20px; margin:20px auto; width:80%; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { border:1px solid #ccc; padding:8px; }
-    th { background:#eee; }
-  </style>
-</head>
-<body>
+<h2>Apartment Visitor Entry</h2>
 
-<h1>📊 Site Visitors Analytics</h1>
+<input id="name" placeholder="Visitor Name"><br>
+<input id="mobile" placeholder="Mobile Number"><br>
+<input id="flat" placeholder="Flat Number"><br>
+<input id="purpose" placeholder="Purpose"><br>
 
-<div class="card">
-  <h3>Stats</h3>
-  <p id="stats">Loading...</p>
-</div>
-
-<div class="card">
-  <h3>Recent Visitors</h3>
-  <table>
-    <thead>
-      <tr><th>IP</th><th>Browser</th><th>Time</th></tr>
-    </thead>
-    <tbody id="visitors"></tbody>
-  </table>
-</div>
+<button onclick="submitVisitor()">Submit</button>
 
 <script>
-fetch("/api/visit");
-
-fetch("/api/stats")
-  .then(r => r.json())
-  .then(d => {
-    document.getElementById("stats").innerText =
-      `Total: ${d.total_visits}, Unique: ${d.unique_visitors}, Last: ${d.last_visit}`;
-  });
-
-fetch("/api/visitors")
-  .then(r => r.json())
-  .then(rows => {
-    document.getElementById("visitors").innerHTML =
-      rows.map(r =>
-        `<tr><td>${r.ip_address}</td><td>${r.user_agent}</td><td>${r.visited_at}</td></tr>`
-      ).join("");
-  });
+function submitVisitor() {
+  fetch("/api/visitor", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: document.getElementById("name").value,
+      mobile: document.getElementById("mobile").value,
+      flat: document.getElementById("flat").value,
+      purpose: document.getElementById("purpose").value
+    })
+  }).then(() => alert("Visitor Entry Saved"));
+}
 </script>
-
-</body>
-</html>
