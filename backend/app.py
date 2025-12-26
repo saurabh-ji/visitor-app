@@ -1,9 +1,6 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 import mysql.connector
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
 
@@ -12,18 +9,25 @@ def get_db():
         host=os.environ["database-1.cxmui8ykwz3e.eu-west-1.rds.amazonaws.com"],
         user=os.environ["admin"],
         password=os.environ["saurabh123"],
-        database=os.environ["sitedb"]
+        database=os.environ["societydb"]
     )
 
-@app.route("/api/visit")
-def visit():
+@app.route("/api/visitor", methods=["POST"])
+def add_visitor():
+    data = request.json
+
     db = get_db()
     cur = db.cursor()
-
-    cur.execute("UPDATE visitors SET count = count + 1 WHERE id = 1")
+    cur.execute("""
+        INSERT INTO visitors
+        (visitor_name, mobile, flat_number, visit_purpose)
+        VALUES (%s, %s, %s, %s)
+    """, (
+        data["name"],
+        data["mobile"],
+        data["flat"],
+        data["purpose"]
+    ))
     db.commit()
 
-    cur.execute("SELECT count FROM visitors WHERE id = 1")
-    count = cur.fetchone()[0]
-
-    return jsonify({"visitors": count})
+    return jsonify({"status": "Visitor added"})
