@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 import mysql.connector
 import os
 from dotenv import load_dotenv
@@ -12,16 +12,18 @@ def get_db():
         host=os.environ["database-1.cxmui8ykwz3e.eu-west-1.rds.amazonaws.com"],
         user=os.environ["admin"],
         password=os.environ["saurabh123"],
-        database=os.environ["societydb"],
-        port=3306
+        database=os.environ["sitedb"]
     )
 
-@app.route("/")
-def home():
-    try:
-        db = get_db()
-        cur = db.cursor()
-        cur.execute("SELECT DATABASE()")
-        return f"Backend connected to DB ✅ : {cur.fetchone()[0]}"
-    except Exception as e:
-        return f"DB connection failed ❌ : {e}"
+@app.route("/api/visit")
+def visit():
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute("UPDATE visitors SET count = count + 1 WHERE id = 1")
+    db.commit()
+
+    cur.execute("SELECT count FROM visitors WHERE id = 1")
+    count = cur.fetchone()[0]
+
+    return jsonify({"visitors": count})
